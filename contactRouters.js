@@ -6,7 +6,7 @@ const {
   createContact,
   editContact,
 } = require("./contactsRouteController");
-const { addContact } = require("./data");
+
 const Router = require("express").Router();
 
 Router.post("/", express.json(), createContact);

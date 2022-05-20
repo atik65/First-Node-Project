@@ -1,55 +1,80 @@
-let {
-  data,
-  addContact,
-  getContact,
-  updateContact,
-  deleteContact,
-  getAllContact,
-} = require("./data");
+const Contact = require("./Contact");
+
+// create contact
+exports.createContact = (req, res) => {
+  const { name, email, phone } = req.body;
+
+  const contact = new Contact({
+    name,
+    phone,
+    email,
+  });
+
+  contact.save().then((c) => {
+    console.log(c);
+    res.json(c);
+  });
+};
 
 //get all contacts
 exports.getAllContacts = (req, res) => {
-  res.send(getAllContact());
+  Contact.find()
+    .then((contacts) => {
+      res.json(contacts);
+    })
+    .catch((err) => {
+      console.log(err.message);
+
+      res.send("Error Occured");
+    });
 };
 
 // get single contact by id
 exports.getSpecificContact = (req, res) => {
-  const contactId = req.params.id;
+  const id = req.params.id;
 
-  const filteredContact = getContact(contactId);
+  Contact.findById(id)
+    .then((contact) => {
+      res.json(contact);
+    })
+    .catch((err) => {
+      console.log(err.message);
+      res.send("Error Occured");
+    });
+};
 
-  if (!!filteredContact) {
-    res.send(filteredContact);
-  } else {
-    res.send("Not matched any Contact!!");
-  }
+// update Contact
+exports.editContact = (req, res) => {
+  const id = req.params.id;
+  const { name, email, phone } = req.body;
+
+  Contact.findOneAndUpdate(
+    { _id: id },
+    { $set: { name, email, phone } },
+    { new: true }
+  )
+    .then((contact) => {
+      res.json(contact);
+    })
+    .catch((err) => {
+      console.log(err.message);
+
+      res.send("Error Occured");
+    });
 };
 
 // delete contacts
 exports.delteContact = (req, res) => {
   const id = req.params.id;
 
-  const done = deleteContact(id);
-
-  if (!!done) {
-    res.send("Contact Deleted");
-  } else {
-    res.send("No Contact Exist with this ID");
-  }
-};
-
-exports.createContact = (req, res) => {
-  const newData = addContact(req.body);
-
-  res.json(newData);
-};
-
-exports.editContact = (req, res) => {
-  const done = updateContact(req.params.id, req.body);
-
-  if (!!done) {
-    res.send("Contact Updated");
-  } else {
-    res.send("No Contact Exist with this ID");
-  }
+  Contact.findOneAndDelete({
+    _id: id,
+  })
+    .then((contact) => {
+      res.json(contact);
+    })
+    .catch((err) => {
+      console.log(err.message);
+      res.send("Error Occured");
+    });
 };
